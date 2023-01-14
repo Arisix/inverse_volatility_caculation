@@ -28,9 +28,3 @@ EDV allocation ratio: 36.98% (anualized volatility: 17.03%, performance: 5.63%)
 ```
 
 Checking against Portfolio Visualizer: ![](UPRO_VOO_EDV.png)
-
-## Note
-
-Data source: https://finance.yahoo.com/quote/VOO/history?p=VOO -> Historical Data -> Download Data
-
-Note that the cookie in the code may expire that you need to update the `crumb` parameter in the url along with your cookie from browser accordingly.
