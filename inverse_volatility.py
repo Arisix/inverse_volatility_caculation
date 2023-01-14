@@ -2,56 +2,78 @@
 
 # Author: Zebing Lin (https://github.com/linzebing)
 
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 import math
 import numpy as np
 import time
 import sys
 import requests
+import yfinance as yf
 
-if len(sys.argv) == 1:
-    symbols = ['UPRO', 'TMF']
-else:
-    symbols = sys.argv[1].split(',')
-    for i in range(len(symbols)):
-        symbols[i] = symbols[i].strip().upper()
+class Program:
+    def __init__(self, symbols, window_size, result_file):
+        self.symbols = symbols
+        self.window_size = window_size
+        self.result_file = result_file
 
-num_trading_days_per_year = 252
-window_size = 20
-date_format = "%Y-%m-%d"
-end_timestamp = int(time.time())
-start_timestamp = int(end_timestamp - (1.4 * (window_size + 1) + 4) * 86400)
+        self.num_trading_days_per_year = 252
+        self.date_format = "%Y-%m-%d"
+        self.end_date = datetime.today().strftime(self.date_format)
+        self.start_date = (datetime.today() - timedelta(days=(self.window_size + 1)*1.4+4)).strftime(self.date_format)
 
+    def get_stock_data(self, ticker, start_date, end_date):
+        info = yf.Ticker(ticker)
+        stock_data = info.history(start=start_date, end=end_date, interval="1d");
+        # stock_data.to_csv("{} stock_prices.csv".format(ticker))
+        return stock_data
 
-def get_volatility_and_performance(symbol):
-    download_url = "https://query1.finance.yahoo.com/v7/finance/download/{}?period1={}&period2={}&interval=1d&events=history&crumb=a7pcO//zvcW".format(symbol, start_timestamp, end_timestamp)
-    lines = requests.get(download_url, cookies={'B': 'chjes25epq9b6&b=3&s=18'}).text.strip().split('\n')
-    assert lines[0].split(',')[0] == 'Date'
-    assert lines[0].split(',')[4] == 'Close'
-    prices = []
-    for line in lines[1:]:
-        prices.append(float(line.split(',')[4]))
-    prices.reverse()
-    volatilities_in_window = []
+    def get_volatility_and_performance(self, symbol):
+        datas = self.get_stock_data(symbol,  self.start_date, self.end_date)
+        close_datas = datas["Close"]
+        prices = []
 
-    for i in range(window_size):
-        volatilities_in_window.append(math.log(prices[i] / prices[i+1]))
-        
-    most_recent_date = datetime.strptime(lines[-1].split(',')[0], date_format).date()
-    assert (date.today() - most_recent_date).days <= 4, "today is {}, most recent trading day is {}".format(date.today(), most_recent_date)
+        for close_data in close_datas:
+            prices.append(float(close_data))
 
-    return np.std(volatilities_in_window, ddof = 1) * np.sqrt(num_trading_days_per_year), prices[0] / prices[window_size] - 1.0
+        prices.reverse()
+        volatilities_in_window = []
 
-volatilities = []
-performances = []
-sum_inverse_volatility = 0.0
-for symbol in symbols:
-    volatility, performance = get_volatility_and_performance(symbol)
-    sum_inverse_volatility += 1 / volatility
-    volatilities.append(volatility)
-    performances.append(performance)
+        for i in range(self.window_size):
+            volatilities_in_window.append(math.log(prices[i] / prices[i+1]))
 
-print ("Portfolio: {}, as of {} (window size is {} days)".format(str(symbols), date.today().strftime('%Y-%m-%d'), window_size))
-for i in range(len(symbols)):
-    print ('{} allocation ratio: {:.2f}% (anualized volatility: {:.2f}%, performance: {:.2f}%)'.format(symbols[i], float(100 / (volatilities[i] * sum_inverse_volatility)), float(volatilities[i] * 100), float(performances[i] * 100)))
+        return np.std(volatilities_in_window, ddof = 1) * np.sqrt(self.num_trading_days_per_year), prices[0] / prices[self.window_size] - 1.0
 
+    def process(self):
+        volatilities = []
+        performances = []
+        sum_inverse_volatility = 0.0
+        for symbol in self.symbols:
+            volatility, performance = self.get_volatility_and_performance(symbol)
+            sum_inverse_volatility += 1 / volatility
+            volatilities.append(volatility)
+            performances.append(performance)
+
+        f = open(self.result_file, 'w')
+
+        print("Portfolio: {}, as of {} (window size is {} days)".format(str(self.symbols), date.today().strftime('%Y-%m-%d'), self.window_size), file=f)
+        for i in range(len(self.symbols)):
+            print('{} allocation ratio: {:.2f}% (anualized volatility: {:.2f}%, performance: {:.2f}%)'.format(self.symbols[i], float(100 / (volatilities[i] * sum_inverse_volatility)), float(volatilities[i] * 100), float(performances[i] * 100)), file=f)
+
+        f.close()        
+
+def __Main():
+    if len(sys.argv) <= 3:
+        symbols = ["QLD", "UBT"]
+        window_size = 20
+        result_file = "result.txt"
+    else:
+        symbols = sys.argv[1].split(',')
+        for i in range(len(symbols)):
+            symbols[i] = symbols[i].strip().upper()
+        window_size = int(sys.argv[2])
+        result_file = sys.argv[3]
+
+    program = Program(symbols, window_size, result_file)
+    program.process()
+
+__Main()
