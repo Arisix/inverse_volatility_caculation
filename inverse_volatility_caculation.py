@@ -1,7 +1,3 @@
-#!/usr/local/bin/python3
-
-# Author: Zebing Lin (https://github.com/linzebing)
-
 from datetime import datetime, date, timedelta
 import math
 import numpy as np

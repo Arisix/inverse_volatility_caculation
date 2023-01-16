@@ -1,0 +1,3 @@
+Portfolio: ['00631L.TW', '00680L.TW'], as of 2023-01-16 (window size is 20 days)
+00631L.TW allocation ratio: 49.31% (anualized volatility: 35.58%, performance: 2.19%)
+00680L.TW allocation ratio: 50.69% (anualized volatility: 34.62%, performance: -2.42%)

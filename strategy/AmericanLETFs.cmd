@@ -1,0 +1,1 @@
+..\inverse_volatility_caculation.py QLD,SSO,DDM,UBT 20 AmericanLETFs.txt

@@ -1,0 +1,5 @@
+Portfolio: ['QLD', 'SSO', 'DDM', 'UBT'], as of 2023-01-16 (window size is 20 days)
+QLD allocation ratio: 19.73% (anualized volatility: 50.67%, performance: -4.48%)
+SSO allocation ratio: 26.08% (anualized volatility: 38.32%, performance: -0.39%)
+DDM allocation ratio: 31.16% (anualized volatility: 32.08%, performance: 1.36%)
+UBT allocation ratio: 23.03% (anualized volatility: 43.40%, performance: -2.82%)

@@ -1,0 +1,1 @@
+..\inverse_volatility_caculation.py 00631L.TW,00680L.TW 20 TaiwanLETFs.txt
