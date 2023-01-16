@@ -19,7 +19,7 @@ class Program:
         self.num_trading_days_per_year = 252
         self.date_format = "%Y-%m-%d"
         self.end_date = datetime.today().strftime(self.date_format)
-        self.start_date = (datetime.today() - timedelta(days=(self.window_size + 1)*1.4+4)).strftime(self.date_format)
+        self.start_date = (datetime.today() - timedelta(days=(self.window_size + 1)*2)).strftime(self.date_format)
 
     def get_stock_data(self, ticker, start_date, end_date):
         info = yf.Ticker(ticker)
@@ -61,7 +61,7 @@ class Program:
 
         f.close()        
 
-def __Main():
+if __name__ == '__main__':
     if len(sys.argv) <= 3:
         symbols = ["QLD", "UBT"]
         window_size = 20
@@ -75,5 +75,3 @@ def __Main():
 
     program = Program(symbols, window_size, result_file)
     program.process()
-
-__Main()
